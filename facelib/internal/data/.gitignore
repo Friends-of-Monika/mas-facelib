@@ -1,0 +1,4 @@
+# Binary assets embedded in data.go; not tracking in-tree
+# (see data.go for info on how to download them)
+facefinder
+*.onnx
