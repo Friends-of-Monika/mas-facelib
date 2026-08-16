@@ -7,3 +7,8 @@
 # RenPy bytecode
 *.rpyc
 *.rpymc
+
+# Python bytecode
+*.pyc
+*.pyo
+

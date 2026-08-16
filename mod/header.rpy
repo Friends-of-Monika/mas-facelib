@@ -1,16 +1,16 @@
 init -990 python:
     store.mas_submod_utils.Submod(
         author="Friends of Monika",
-        name="Submod Template",
-        description=_("This is a template submod for other people to reuse."),
+        name="FaceLib",
+        description=_("A library submod to provide tiny (<50MB), painless, fully local basic facial recognition API"),
         version="1.0.0"
     )
 
 init -989 python:
     if store.mas_submod_utils.isSubmodInstalled("Submod Updater Plugin"):
         store.sup_utils.SubmodUpdater(
-            submod="Submod Template",
+            submod="FaceLib",
             user_name="friends-of-monika",
-            repository_name="mas-submod-template",
+            repository_name="mas-facelib",
             extraction_depth=2
         )
