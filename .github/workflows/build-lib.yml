@@ -1,0 +1,125 @@
+name: Build facelib
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'facelib/**'
+      - 'lib/facelib/**'
+      - 'scripts/build-lib.*'
+      - 'scripts/fetch-assets.*'
+      - '.github/workflows/build-lib.yml'
+  pull_request:
+    paths:
+      - 'facelib/**'
+      - 'lib/facelib/**'
+      - 'scripts/build-lib.*'
+      - 'scripts/fetch-assets.*'
+      - '.github/workflows/build-lib.yml'
+
+env:
+  GO_VERSION: '1.26'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: facelib/go.sum
+
+      # cache the ONNX model separately from Go modules
+      - name: Cache emotion model
+        uses: actions/cache@v4
+        with:
+          path: facelib/internal/data/*.onnx
+          key: emotion-model-ferplus-8
+
+      - name: Fetch assets
+        run: ./scripts/fetch-assets.sh
+
+      - name: Go vet
+        working-directory: facelib
+        run: go vet ./...
+
+      - name: Go test
+        working-directory: facelib
+        run: go test -race ./...
+
+  build:
+    name: Build ${{ matrix.target }}
+    needs: test
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux/amd64
+            runner: ubuntu-latest
+            artifact: facelib-linux-amd64.so
+          - target: windows/amd64
+            runner: ubuntu-latest
+            artifact: facelib-windows-amd64.dll
+          - target: darwin/amd64
+            runner: macos-latest
+            artifact: facelib-darwin-amd64.dylib
+          - target: darwin/arm64
+            runner: macos-latest
+            artifact: facelib-darwin-arm64.dylib
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: facelib/go.sum
+
+      - name: Cache emotion model
+        uses: actions/cache@v4
+        with:
+          path: facelib/internal/data/*.onnx
+          key: emotion-model-ferplus-8
+
+      # windows build toolchain
+      - name: Install mingw-w64
+        if: matrix.target == 'windows/amd64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64-x86-64
+
+      - name: Build
+        run: ./scripts/build-lib.sh ${{ matrix.target }}
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: lib/facelib/${{ matrix.artifact }}
+          if-no-files-found: error
+
+  # test-binding:
+  #   name: Test Python 2 binding
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   container: python:2.7-slim
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Download linux library
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: facelib-linux-amd64.so
+  #         path: lib/facelib
+  #
+  #     - name: Run tests
+  #       run: python2 lib/facelib/test_facelib.py
