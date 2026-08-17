@@ -12,3 +12,8 @@
 *.pyc
 *.pyo
 
+# Compiled shared libraries
+/lib/facelib/*.so
+/lib/facelib/*.dll
+/lib/facelib/*.dylib
+/lib/facelib/*.h
