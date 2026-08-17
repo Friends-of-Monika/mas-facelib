@@ -33,17 +33,24 @@
 	</a>
 </p>
 
+> [!NOTE]
+> This is a *library* submod, and it does not provide any topics or features itself. <br>
+> Unless you're a developer looking to tinker with it, it's going to be useless to you
+> without a submod that actually uses the code it provides.
+
+## 🧑‍💻 For submodders
+
+Are you a submodder looking for docs and guides? See [DEVELOPERS.md](doc/DEVELOPERS.md)
+page for everything you need when interfacing with this submod.
+
 ## 🌟 Features
 
-* Convenient project structure
-* Submod .zip packaging scripts
-* README based on Friends of Monika submod README's
-* Works for submods of intermediate complexity
-* Based on:
-  - [Say Something Submod](https://github.com/friends-of-monika/mas-saysomething)
-  - [Self-Harm Awareness Submod](https://github.com/friends-of-monika/mas-selfharm)
-  - [Autostart Submod](https://github.com/friends-of-monika/mas-autostart)
-  - And is used by Friends of Monika team for future projects
+* Simple, intuitive and convenient public API with background threading support
+* Small (less than 50 MB) dynamic library with model embedded
+  - For those concerned: *does not use generative AI* 🙄
+* Supports basic face detection and some emotion classifiers
+* Windows, Linux and MacOS platforms are supported
+  - Android currently **unsupported**
 
 <!-- If you want to show off screenshots, you can put them in 'doc/screenshots'
 	and reference them here. This is basically an HTML table with two columns. -->
@@ -63,12 +70,10 @@
 	</table>
 </details> -->
 
-<!-- Generic installation guide that works for .zip packages built by scripts of this template. -->
 ## ❓ Installing
 
 1. Go to [the latest release page](https://github.com/friends-of-monika/mas-facelib)
    and scroll to Assets section.
-
 2. Download `facelib-VERSION.zip` file.
 3. Drag and drop `game` folder from it into your DDLC folder. <br>
    **NOTE:** make sure you don't drag it *into `game`*!
