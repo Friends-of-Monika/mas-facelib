@@ -1,0 +1,108 @@
+name: Build & draft a new release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # the ancestry check below needs origin/master
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Check the tag is on master
+        if: github.ref_type == 'tag'
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "::error::tag $GITHUB_REF_NAME points at a commit that is not on master"
+            exit 1
+          fi
+
+      # a mismatch here would ship a .zip named after a version the submod does
+      # not report to MAS, which breaks Submod Updater Plugin
+      - name: Check the tag matches the submod header
+        if: github.ref_type == 'tag'
+        run: |
+          Header="$(python scripts/find-header.py find mod | jq -r 'to_entries[0].value.version')"
+          Tag="${GITHUB_REF_NAME#v}"
+          if [ "$Header" != "$Tag" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match submod header version $Header"
+            exit 1
+          fi
+
+  facelib:
+    name: facelib
+    needs: verify
+    uses: ./.github/workflows/build-lib.yml
+    with:
+      version: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+
+  dist:
+    name: Package
+    needs: facelib
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Download native libraries
+        uses: actions/download-artifact@v4
+        with:
+          path: lib/facelib
+          pattern: facelib-*
+          merge-multiple: true
+
+      - name: Check every platform is present
+        run: |
+          Missing=0
+          for Lib in facelib-linux-amd64.so \
+                     facelib-windows-386.dll \
+                     facelib-darwin-amd64.dylib \
+                     facelib-darwin-arm64.dylib; do
+            if [ ! -f "lib/facelib/$Lib" ]; then
+              echo "::error::missing native library: $Lib"
+              Missing=1
+            fi
+          done
+          exit "$Missing"
+
+      - name: Package
+        run: ./scripts/build-dist.sh
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: submod-dist
+          path: build/*.zip
+          if-no-files-found: error
+
+      # drafted, not published: the notes and the .zip get a look over before
+      # anyone's updater picks the release up
+      - name: Draft release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" build/*.zip \
+            --title "$GITHUB_REF_NAME" \
+            --draft

@@ -1,7 +1,15 @@
-name: Build facelib
+name: Build FaceLib natives
 
 on:
   workflow_dispatch:
+  # called by the release workflow, which needs every platform built at once
+  workflow_call:
+    inputs:
+      version:
+        description: Build identifier baked into the library, as reported by fl_version. Falls back to git describe when empty.
+        type: string
+        required: false
+        default: ''
   push:
     branches:
       - master
@@ -98,6 +106,8 @@ jobs:
           sudo apt-get install -y gcc-mingw-w64-i686
 
       - name: Build
+        env:
+          FACELIB_VERSION: ${{ inputs.version }}
         run: ./scripts/build-lib.sh ${{ matrix.target }}
 
       - name: Upload
