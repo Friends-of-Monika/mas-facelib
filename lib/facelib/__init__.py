@@ -36,21 +36,41 @@ def _platform_tag():
     """
     Work out which library build this machine needs.
 
+    Windows is shipped as x86 only, because the Ren'Py distribution MAS runs on
+    embeds a 32-bit Python. So on Windows it is the interpreter's pointer size
+    that decides, not the CPU: a 64-bit machine still needs the x86 library
+    when the process running this is 32-bit.
+
     OUT:
         (goos, goarch) pair naming the library for this machine
 
     RAISES:
-        FaceLibError: on an unsupported platform or architecture
+        FaceLibError: on an unsupported platform, architecture, or an
+            interpreter of the wrong width for the libraries shipped
     """
+
+    bits = struct.calcsize("P") * 8
+
+    if sys.platform in ("win32", "cygwin"):
+        if bits != 32:
+            raise FaceLibError(
+                "facelib ships a 32-bit library for Windows; this runtime is "
+                "%d-bit" % bits
+            )
+        return "windows", "386"
 
     if sys.platform.startswith("linux"):
         goos = "linux"
-    elif sys.platform in ("win32", "cygwin"):
-        goos = "windows"
     elif sys.platform == "darwin":
         goos = "darwin"
     else:
         raise FaceLibError("unsupported platform: %s" % sys.platform)
+
+    if bits != 64:
+        raise FaceLibError(
+            "facelib requires a 64-bit Python on %s; this runtime is %d-bit"
+            % (goos, bits)
+        )
 
     machine = platform.machine().lower()
     if machine in ("x86_64", "amd64", "x64"):
@@ -75,19 +95,11 @@ def default_library_path():
         absolute path to the library for this platform
 
     RAISES:
-        FaceLibError: on a 32-bit runtime, or an unsupported platform
+        FaceLibError: on an interpreter of the wrong width, or an unsupported
+            platform
     """
 
     from renpy import store
-
-    # A 64-bit .so cannot be loaded into a 32-bit interpreter. Detecting this
-    # here turns a confusing loader error into a clear message.
-    if struct.calcsize("P") != 8:
-        raise FaceLibError(
-            "facelib requires a 64-bit Python; this runtime is %d-bit"
-            % (struct.calcsize("P") * 8)
-        )
-
     goos, goarch = _platform_tag()
     name = "facelib-%s-%s.%s" % (goos, goarch, _library_extension(goos))
     return os.path.join(store.renpy.config.gamedir, os.path.dirname(__file__), name)

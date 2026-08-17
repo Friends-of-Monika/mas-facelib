@@ -7,9 +7,11 @@
 # Targets are GOOS/GOARCH pairs. With none given, only the host platform is
 # built. Supported:
 #   linux/amd64      -> lib/facelib/facelib-linux-amd64.so
-#   windows/amd64    -> lib/facelib/facelib-windows-amd64.dll
+#   windows/386      -> lib/facelib/facelib-windows-386.dll
 #   darwin/amd64     -> lib/facelib/facelib-darwin-amd64.dylib
 #   darwin/arm64     -> lib/facelib/facelib-darwin-arm64.dylib
+#
+# Windows is x86 only as DDLC ships 32-bit (i686) executables only.
 
 set -euo pipefail
 
@@ -81,12 +83,13 @@ for target in "${targets[@]}"; do
         linux/amd64)
             build linux amd64 so "" || failed=1
             ;;
-        windows/amd64)
-            # Native builds on Windows use the toolchain already on PATH
+        windows/386)
+            # Native builds on Windows use the toolchain already on PATH, which
+            # has to be a 32-bit one (an MSYS2 mingw32 shell, not mingw64)
             if [ "$(go env GOOS)" = "windows" ]; then
-                build windows amd64 dll "" || failed=1
+                build windows 386 dll "" || failed=1
             else
-                build windows amd64 dll x86_64-w64-mingw32-gcc || failed=1
+                build windows 386 dll i686-w64-mingw32-gcc || failed=1
             fi
             ;;
         darwin/amd64)

@@ -63,9 +63,10 @@ jobs:
           - target: linux/amd64
             runner: ubuntu-latest
             artifact: facelib-linux-amd64.so
-          - target: windows/amd64
+          # x86 on purpose: MAS' Ren'Py embeds a 32-bit Python on Windows
+          - target: windows/386
             runner: ubuntu-latest
-            artifact: facelib-windows-amd64.dll
+            artifact: facelib-windows-386.dll
           - target: darwin/amd64
             runner: macos-latest
             artifact: facelib-darwin-amd64.dylib
@@ -91,10 +92,10 @@ jobs:
 
       # windows build toolchain
       - name: Install mingw-w64
-        if: matrix.target == 'windows/amd64'
+        if: matrix.target == 'windows/386'
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-mingw-w64-x86-64
+          sudo apt-get install -y gcc-mingw-w64-i686
 
       - name: Build
         run: ./scripts/build-lib.sh ${{ matrix.target }}
