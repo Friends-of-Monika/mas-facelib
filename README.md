@@ -1,18 +1,15 @@
 <p align="center">
-	<!-- If you have a submod banner, you can use an image here. -->
 	<!-- <img src="doc/Banner.png" width="360" height="200"> -->
 	<h1 align="center">👤 MAS FaceLib Submod 👤</h1>
 	<h3 align="center">
-		A library submod to provide tiny (&lt;50MB), painless, fully local basic facial recognition API
+		A library submod to provide small, simple, fully local basic facial recognition API
 	</h3>
 </p>
 
 <p align="center">
-	<!-- Latest release version of your submod. -->
 	<a href="https://github.com/friends-of-monika/mas-facelib/releases/latest">
 		<img alt="Latest release" src="https://img.shields.io/github/v/release/friends-of-monika/mas-facelib">
 	</a>
-	<!-- Total downloads count of your submod releases. -->
 	<a href="https://github.com/friends-of-monika/mas-facelib/releases">
 		<img alt="Release downloads" src="https://img.shields.io/github/downloads/friends-of-monika/mas-facelib/total">
 	</a>
@@ -25,19 +22,17 @@
 		<img alt="Reddit badge" src="https://img.shields.io/badge/dynamic/json?label=%F0%9D%97%8B%2Fmasfandom%20post&query=%24[0].data.children[0].data.score&suffix=%20upvotes&url=YOUR_REDDIT_POST_ENCODED_URL.json&logo=reddit&style=social">
 	</a> -->
 	<!-- License of your submod. If you don't know what that is, you likely don't need it at all. -->
-	<!-- <a href="https://github.com/friends-of-monika/mas-facelib/blob/main/LICENSE.txt">
+	<a href="https://github.com/friends-of-monika/mas-facelib/blob/main/LICENSE.txt">
 		<img alt="MIT license badge" src="https://img.shields.io/github/license/friends-of-monika/mas-facelib">
-	</a> -->
+	</a>
 	<a href="https://mon.icu/discord">
 		<img alt="Discord server" src="https://discordapp.com/api/guilds/1029849988953546802/widget.png?style=shield">
 	</a>
-	<!-- If you have Ko-Fi, you can use the code from the link here. -->
-	<!-- <a href="https://ko-fi.com/YOUR_KOFI_CODE">
+	<a href="https://ko-fi.com/dreamscached">
 		<img alt="Ko-fi badge" src="https://ko-fi.com/img/githubbutton_sm.svg" height="20">
-	</a> -->
+	</a>
 </p>
 
-<!-- Nice features section to highlight key things. -->
 ## 🌟 Features
 
 * Convenient project structure
@@ -74,9 +69,8 @@
 1. Go to [the latest release page](https://github.com/friends-of-monika/mas-facelib)
    and scroll to Assets section.
 
-<!-- Replace YOUR_SUBMOD_FILE_NAME with your submod file name you'll release. -->
-2. Download `YOUR_SUBMOD_FILE_NAME-VERSION.zip` file.
-3. Drag and drop `game/` folder from it into your DDLC folder. <br>
+2. Download `facelib-VERSION.zip` file.
+3. Drag and drop `game` folder from it into your DDLC folder. <br>
    **NOTE:** make sure you don't drag it *into `game`*!
 4. You're all set!~
 

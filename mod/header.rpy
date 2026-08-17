@@ -2,7 +2,7 @@ init -990 python:
     store.mas_submod_utils.Submod(
         author="Friends of Monika",
         name="FaceLib",
-        description=_("A library submod to provide tiny (<50MB), painless, fully local basic facial recognition API"),
+        description=_("A library submod to provide small, simple, fully local basic facial recognition API"),
         version="1.0.0"
     )
 
