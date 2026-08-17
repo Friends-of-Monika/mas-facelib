@@ -1,17 +1,22 @@
 package facelib
 
 import (
+	"fmt"
 	"image"
+	"os"
+
+	_ "image/jpeg"
+	_ "image/png"
 
 	"github.com/friends-of-monika/mas-facelib/facelib/internal/data"
 )
 
-// Options controls a single Analyze call.
+// Options controls a single AnalyzeData call.
 type Options struct {
 	// Detect provides face detection parameters.
 	Detect DetectParams
 
-	// Emotion enables emotion classification. When false, Analyze only
+	// Emotion enables emotion classification. When false, AnalyzeData only
 	// reports face boxes and never touches the ONNX model.
 	Emotion bool
 
@@ -59,7 +64,7 @@ type FaceResult struct {
 	EmotionError string `json:"emotion_error,omitempty"`
 }
 
-// Result is the outcome of one Analyze call.
+// Result is the outcome of one AnalyzeData call.
 type Result struct {
 	// Face reports whether any face was detected at all.
 	Face bool `json:"face"`
@@ -69,15 +74,35 @@ type Result struct {
 	Faces []FaceResult `json:"faces"`
 }
 
-// Analyze detects faces in a raw pixel buffer and optionally classifies their emotions.
+// AnalyzeData detects faces in a raw pixel buffer and optionally classifies their emotions.
 //
 // buf is only read during the call and is never retained.
-func Analyze(buf []uint8, width, height, stride, channels int, opts Options) (*Result, error) {
+func AnalyzeData(buf []uint8, width, height, stride, channels int, opts Options) (*Result, error) {
 	g, err := GrayFromBuffer(buf, width, height, stride, channels)
 	if err != nil {
 		return nil, err
 	}
+	return analyzeGray(g, opts)
+}
 
+// AnalyzeFile decodes a PNG or JPEG from disk and analyzes it.
+func AnalyzeFile(path string, opts Options) (*Result, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	src, _, err := image.Decode(f)
+	if err != nil {
+		return nil, fmt.Errorf("facelib: could not decode %s: %w", path, err)
+	}
+	return analyzeGray(GrayFromImage(src), opts)
+}
+
+// analyzeGray runs detection and classification over an already grayscale
+// frame, shared by every entry point.
+func analyzeGray(g *image.Gray, opts Options) (*Result, error) {
 	faces, err := Detect(g, opts.Detect)
 	if err != nil {
 		return nil, err

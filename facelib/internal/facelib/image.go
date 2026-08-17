@@ -94,6 +94,34 @@ func GrayFromBuffer(buf []uint8, width, height, stride, channels int) (*image.Gr
 	return g, nil
 }
 
+// GrayFromImage converts a decoded image to grayscale, anchored at (0, 0).
+//
+// NRGBA is handled directly so that alpha is ignored rather than composited,
+// matching GrayFromBuffer. Everything else goes through draw, which picks the
+// right conversion for the concrete type, including a JPEG's YCbCr.
+func GrayFromImage(src image.Image) *image.Gray {
+	b := src.Bounds()
+	g := image.NewGray(image.Rect(0, 0, b.Dx(), b.Dy()))
+
+	if n, ok := src.(*image.NRGBA); ok {
+		for y := range b.Dy() {
+			row := n.Pix[n.PixOffset(b.Min.X, b.Min.Y+y):]
+			dst := g.Pix[y*g.Stride:]
+			for x := range b.Dx() {
+				i := x * 4
+				r := uint32(row[i]) * 0x101
+				gg := uint32(row[i+1]) * 0x101
+				bb := uint32(row[i+2]) * 0x101
+				dst[x] = uint8((19595*r + 38470*gg + 7471*bb + 1<<15) >> 24)
+			}
+		}
+		return g
+	}
+
+	xdraw.Draw(g, g.Bounds(), src, b.Min, xdraw.Src)
+	return g
+}
+
 // Crop returns the sub-image covered by r, clamped to the image bounds.
 //
 // The result shares pixels with g rather than copying them.
