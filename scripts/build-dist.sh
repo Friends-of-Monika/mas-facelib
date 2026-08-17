@@ -37,7 +37,7 @@ Temp="$(mktemp -d)"
 
 if [ -z "$Header" ]; then
     # Locate header files automatically and parse JSON
-    Headers="$(python "$Dir/../$ProjectScriptsDir/find_header.py" find \
+    Headers="$(python "$Dir/../$ProjectScriptsDir/find-header.py" find \
         "$Dir/../$ProjectModDir" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]')"
 
     # Check that we have at least some of them
@@ -62,7 +62,7 @@ if [ -z "$Header" ]; then
 
 else
     # Parse header from the provided header .rpy script and parse JSON
-    if ! Submod="$(python "$Dir/../$ProjectScriptsDir/find_header.py" header "$Header" \
+    if ! Submod="$(python "$Dir/../$ProjectScriptsDir/find-header.py" header "$Header" \
         2> /dev/null | jq -r '.')";
     then
         echo "Invalid header file: $Header!"

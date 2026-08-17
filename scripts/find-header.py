@@ -5,12 +5,12 @@
 # which is expected to change in the upcoming Submod Framework overhaul.
 #
 # Usage:
-#   $ python find_header.py find <path to directory with .rpy scripts>
+#   $ python find-header.py find <path to directory with .rpy scripts>
 #     - looks for header structures in the directory and prints them out
 #
 #   OR
 #
-#   $ python find_header.py header <path to .rpy file>
+#   $ python find-header.py header <path to .rpy file>
 #     - looks for header structure in just one file and prints it out
 #
 # Output format:
