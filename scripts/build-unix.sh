@@ -19,15 +19,12 @@ done
 # Whether to create enclosing submod folder or not (usually you'd keep it true)
 CreateSubmodFolder=true
 
-# Prefix to prepend to the submod folder. When packaging a submod that adds
-# something in the game/ folder, it is better to set this to "game/Submods"
-PrefixPath="Submods"
-
-# Format string for the file name of your submod .zip file.
+RootPathFormat="%s"
+PrefixPath="game/Submods"
+LibPrefixPath="game/python-packages"
+ExcludeNames=(".gitkeep" "README.md" "*.pyc" "__pycache__" "test_*.py" "testdata")
 ZipFileFormat="%s-%s.zip"
 
-# Various folders in the project layout, only change if you moved any of the
-# folders listed here anywhere or renamed them.
 ProjectScriptsDir="scripts"
 ProjectBuildDir="build"
 ProjectModDir="mod"
@@ -65,7 +62,7 @@ if [ -z "$Header" ]; then
 
 else
     # Parse header from the provided header .rpy script and parse JSON
-    if ! Submod="$(python "$Dir/$ProjectScriptsDir/find_header.py" header "$Header" \
+    if ! Submod="$(python "$Dir/../$ProjectScriptsDir/find_header.py" header "$Header" \
         2> /dev/null | jq -r '.')";
     then
         echo "Invalid header file: $Header!"
@@ -91,19 +88,32 @@ Package=$(printf "$ZipFileFormat" "$Name" "$Version")
 echo "Packaging $SubmodName $SubmodVersion..."
 echo "Created .zip will be saved as $ProjectBuildDir/$Package."
 
+# Top-level folder everything else goes under
+Root="$Temp"
+if [ -n "$RootPathFormat" ]; then
+    # shellcheck disable=SC2059
+    Root="$Temp/$(printf "$RootPathFormat" "$SubmodName")"
+fi
+
 # Create mod folder with prefix
-Mod="$Temp/$PrefixPath"
+Mod="$Root/$PrefixPath"
 if [ "$CreateSubmodFolder" = "true" ]; then Mod="$Mod/$SubmodName"; fi
 mkdir -p "$Mod"
 
-# Copy mod files, optionally copy lib/
+# Copy mod files, optionally copy lib/ into its own prefix
 cp -r "$Dir/../$ProjectModDir/"* "$Mod"
 if [ -d "$Dir/../$ProjectLibDir" ]; then
-    cp -r "$Dir/../$ProjectLibDir/"* "$Mod"
+    Lib="$Root/$LibPrefixPath"
+    mkdir -p "$Lib"
+    cp -r "$Dir/../$ProjectLibDir/"* "$Lib"
 fi
 
-# Remove .gitkeep and README.md
-find "$Temp" \( -iname ".gitkeep" -o -iname "README.md" \) -delete
+# Drop excluded files
+ExcludeArgs=()
+for Pattern in "${ExcludeNames[@]}"; do
+    ExcludeArgs+=(-o -iname "$Pattern")
+done
+find "$Temp" -depth \( "${ExcludeArgs[@]:1}" \) -exec rm -rf {} +
 
 # Create .zip, remove temp folder
 (cd "$Temp" && find . | zip -9@q "$Build/$Package")

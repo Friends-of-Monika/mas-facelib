@@ -12,5 +12,5 @@ init -989 python:
             submod="FaceLib",
             user_name="friends-of-monika",
             repository_name="mas-facelib",
-            extraction_depth=2
+            update_dir=""
         )
