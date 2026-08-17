@@ -22,7 +22,7 @@
 		<img alt="Reddit badge" src="https://img.shields.io/badge/dynamic/json?label=%F0%9D%97%8B%2Fmasfandom%20post&query=%24[0].data.children[0].data.score&suffix=%20upvotes&url=YOUR_REDDIT_POST_ENCODED_URL.json&logo=reddit&style=social">
 	</a> -->
 	<!-- License of your submod. If you don't know what that is, you likely don't need it at all. -->
-	<a href="https://github.com/friends-of-monika/mas-facelib/blob/main/LICENSE.txt">
+	<a href="https://github.com/friends-of-monika/mas-facelib/blob/master/LICENSE.txt">
 		<img alt="MIT license badge" src="https://img.shields.io/github/license/friends-of-monika/mas-facelib">
 	</a>
 	<a href="https://mon.icu/discord">
