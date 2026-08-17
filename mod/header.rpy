@@ -1,3 +1,6 @@
+# This file is part of FaceLib submod (see link below):
+# https://github.com/friends-of-monika/mas-facelib
+
 init -990 python:
     store.mas_submod_utils.Submod(
         author="Friends of Monika",
