@@ -46,11 +46,16 @@ page for everything you need when interfacing with this submod.
 ## 🌟 Features
 
 * Simple, intuitive and convenient public API with background threading support
-* Small (less than 50 MB) dynamic library with model embedded
+* Small (less than 50 MB*) dynamic library with detection model embedded
   - For those concerned: *does not use generative AI* 🙄
 * Supports basic face detection and some emotion classifiers
 * Windows, Linux and MacOS platforms are supported
   - Android currently **unsupported**
+
+<sup>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+* each native library is less than 50 MB in size
+</sup>
 
 <!-- If you want to show off screenshots, you can put them in 'doc/screenshots'
 	and reference them here. This is basically an HTML table with two columns. -->
