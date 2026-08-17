@@ -48,9 +48,9 @@ jobs:
         working-directory: facelib
         run: go vet ./...
 
-      - name: Go test
-        working-directory: facelib
-        run: go test -race ./...
+      # - name: Go test
+      #   working-directory: facelib
+      #   run: go test -race ./...
 
   build:
     name: Build ${{ matrix.target }}

@@ -48,9 +48,10 @@ fetch_cascade() {
 
 # onnx emotion model
 
+# have to resort to this trick because bsd sha256sum sucks
 verify_model() {
     [ -f "$ModelPath" ] || return 1
-    echo "$ModelSha256  $ModelPath" | sha256sum --check --status
+    [ "$(sha256sum "$ModelPath" | cut -d' ' -f1)" = "$ModelSha256" ]
 }
 
 fetch_model() {
@@ -80,10 +81,13 @@ fetch_model() {
         return 1
     fi
 
-    if ! echo "$ModelSha256  $temp" | sha256sum --check --status; then
+    local actual
+    actual="$(sha256sum "$temp" | cut -d' ' -f1)"
+
+    if [ "$actual" != "$ModelSha256" ]; then
         echo "Checksum mismatch on downloaded model, not going to install it." >&2
         echo "  expected: $ModelSha256" >&2
-        echo "  actual:   $(sha256sum "$temp" | cut -d' ' -f1)" >&2
+        echo "  actual:   $actual" >&2
         return 1
     fi
 
