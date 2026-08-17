@@ -78,6 +78,8 @@ def default_library_path():
         FaceLibError: on a 32-bit runtime, or an unsupported platform
     """
 
+    from renpy import store
+
     # A 64-bit .so cannot be loaded into a 32-bit interpreter. Detecting this
     # here turns a confusing loader error into a clear message.
     if struct.calcsize("P") != 8:
@@ -88,7 +90,7 @@ def default_library_path():
 
     goos, goarch = _platform_tag()
     name = "facelib-%s-%s.%s" % (goos, goarch, _library_extension(goos))
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
+    return os.path.join(store.renpy.config.gamedir, os.path.dirname(__file__), name)
 
 
 class FaceLib(object):
@@ -112,9 +114,7 @@ class FaceLib(object):
             library_path = default_library_path()
 
         if not os.path.exists(library_path):
-            raise FaceLibError(
-                "facelib shared library not found at %s" % library_path
-            )
+            raise FaceLibError("facelib shared library not found at %s" % library_path)
 
         try:
             self._lib = ctypes.CDLL(library_path)
